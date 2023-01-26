@@ -1,4 +1,5 @@
 from typing import Optional
+from abc import abstractmethod
 from pygame.event import Event
 from pygcc.application_listener import ApplicationListener
 from pygcc.timestep import Timestep

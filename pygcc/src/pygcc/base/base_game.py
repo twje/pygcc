@@ -1,10 +1,11 @@
 from abc import ABC
-from typing import Optional
+from abc import abstractmethod
 from pygcc.level_manager import LevelManager
-from pygcc.game_logic_state import game_logic_state as gls
 from pygcc.views.game_view import GameView
 from pygcc.timestep import Timestep
-from pygcc import game_logic_state as gls
+from pygcc.game_logic_state import BaseGameState
+from pygcc.game_state_manager import GameStateManager
+from pygcc.game_state_manager import StateFactoryType
 from pygame.event import Event
 from pygcc.config import *
 
@@ -16,15 +17,15 @@ class BaseGame(ABC):
         super().__init__()
         self.games_views: list[GameView] = []
         self.level_manager = LevelManager()
-        self.__state_id: gls.BaseGameState = gls.BaseGameState.BGS_Initializing
-        self.__state: Optional[gls.GameLogicState] = None
+        self.state_manager = GameStateManager(BaseGameState.BGS_Initializing)
 
-    @property
-    def state(self) -> gls.GameLogicState:
-        if self.__state is None:
-            instance = gls.BaseGameStateFactory.create_state(self.__state_id)
-            self.__state = instance
-        return self.__state
+    def post_init(self):
+        self.state_manager.state_factories = self.specify_game_states()
+
+    @abstractmethod
+    def specify_game_states(self) -> StateFactoryType:
+        """Allow client to extend game states"""
+        pass
 
     def load_game(self, level_resource: str) -> bool:
         print(level_resource)
@@ -41,13 +42,12 @@ class BaseGame(ABC):
             view.on_event(event)
 
     def update(self, ts: Timestep):
-        self.state.update()
+        state = self.state_manager.get_state()
+        state.update()
 
     def render(self):
         for view in self.games_views:
             view.render()
 
-    def change_state(self, state_id: gls.BaseGameState):
-        self.__state_id = state_id
-        self.__state = None
-        self.state.on_enter()
+    def change_state(self, state_id: BaseGameState):
+        self.state_manager.change_state(state_id)
