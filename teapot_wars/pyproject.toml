@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "teapot_wars"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "teapot_wars", from = "src"}]
+
+[tool.poetry.scripts]
+main = "teapot_wars.main:main"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pygcc = { path = "../pygcc", develop = true }
+
+[tool.poetry.dev-dependencies]
+autopep8 = "^1.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
