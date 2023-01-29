@@ -39,21 +39,26 @@ class BaseGame(ABC):
         with open(level_resource, "r") as fp:
             root = json.load(fp)
 
+        pre_load_script, post_load_script = self.load_pre_and_post_load_scripts(
+            root,
+            level_resource
+        )
+
+        print(pre_load_script, post_load_script)
+
+    def load_pre_and_post_load_scripts(self, root: dict, level_resource: str) -> tuple[Optional[str], Optional[str]]:
+        pre_load_script, post_load_script = None, None
         if "Scripts" not in root:
             logger.info(f"Unable to load scripts from {level_resource}")
+            return pre_load_script, post_load_script
 
         pre_load_script = self.load_script(root, "PreLoad", level_resource)
         post_load_script = self.load_script(root, "PostLoad", level_resource)
 
-        print(pre_load_script, post_load_script)
+        return pre_load_script, post_load_script
 
     def load_script(self, root: dict, script_id: str, level_resource: str) -> Optional[str]:
-        """
-        Load script from 
-        """
-        if "Scripts" not in root:
-            logger.info(f"Unable to load scripts from {level_resource}")
-            return
+        assert "Scripts" in root
         scripts = root["Scripts"]
 
         if script_id not in root["Scripts"]:
