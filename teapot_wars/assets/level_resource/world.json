@@ -1,0 +1,28 @@
+{
+    "StaticActors": [
+        {
+            "Actor": {
+                "Resource": "actors/grid.xml"
+            }
+        },
+        {
+            "Actor": {
+                "Resource": "actors/light.xml"
+            }
+        },
+        {
+            "Actor": {
+                "Resource": "actors/afternoon_sky.xml"
+            }
+        },
+        {
+            "Actor": {
+                "Resource": "actors/music.xml"
+            }
+        }
+    ],
+    "Scripts": {
+        "PreLoad": "assets/scripts/LevelInit.json",
+        "PostLoad": "assets/scripts/LevelPostInit.json"
+    }
+}
