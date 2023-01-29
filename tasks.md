@@ -1,0 +1,1 @@
+- implement `def load_game(self, level_resource: str) -> bool:`

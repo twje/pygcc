@@ -1,5 +1,6 @@
 from typing import Optional
 from abc import abstractmethod
+
 from pygame.event import Event
 from pygcc.application_listener import ApplicationListener
 from pygcc.timestep import Timestep
@@ -39,14 +40,16 @@ class BaseGameApp(ApplicationListener):
         self.game.update(ts)
         self.game.render()
 
+    def load_game(self) -> bool:
+        # todo: provide way for client to set 'level_resource' value
+        return self.game.load_game("assets/level_resource/world.json")
+
     # =====
     # Hooks
     # =====
+    @abstractmethod
     def create_game_and_view(self) -> BaseGame:
         assert False
-
-    def load_game(self) -> bool:
-        return self.game.load_game("new.xml")
 
     def register_engine_events(self):
         pass

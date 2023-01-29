@@ -1,5 +1,9 @@
+from typing import Optional
 from abc import ABC
 from abc import abstractmethod
+import json
+import logging
+
 from pygcc.level_manager import LevelManager
 from pygcc.views.game_view import GameView
 from pygcc.timestep import Timestep
@@ -7,9 +11,13 @@ from pygcc.game_logic_state import BaseGameState
 from pygcc.game_state_manager import GameStateManager
 from pygcc.game_state_manager import StateFactoryType
 from pygame.event import Event
+from pygcc.events import EventData
 from pygcc.config import *
 
 __all__ = ["BaseGame"]
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class BaseGame(ABC):
@@ -28,7 +36,40 @@ class BaseGame(ABC):
         pass
 
     def load_game(self, level_resource: str) -> bool:
-        print(level_resource)
+        with open(level_resource, "r") as fp:
+            root = json.load(fp)
+
+        if "Scripts" not in root:
+            logger.info(f"Unable to load scripts from {level_resource}")
+
+        pre_load_script = self.load_script(root, "PreLoad", level_resource)
+        post_load_script = self.load_script(root, "PostLoad", level_resource)
+
+        print(pre_load_script, post_load_script)
+
+    def load_script(self, root: dict, script_id: str, level_resource: str) -> Optional[str]:
+        """
+        Load script from 
+        """
+        if "Scripts" not in root:
+            logger.info(f"Unable to load scripts from {level_resource}")
+            return
+        scripts = root["Scripts"]
+
+        if script_id not in root["Scripts"]:
+            logger.info(
+                f"Unable to load script {script_id} from {level_resource}")
+            return
+        script_resource_path = scripts[script_id]
+
+        try:
+            with open(script_resource_path, "r") as fp:
+                return fp.read()
+        except FileNotFoundError:
+            logger.info(f"Script '{script_resource_path}' not found.")
+
+    def load_game_delegate(self, foo) -> bool:
+        return True
 
     def add_view(self, view: GameView, actor_id: int = INVALID_ACTOR_ID):
         view_id = len(self.games_views)
@@ -51,3 +92,10 @@ class BaseGame(ABC):
 
     def change_state(self, state_id: BaseGameState):
         self.state_manager.change_state(state_id)
+
+    # ---------
+    # Delegates
+    # ---------
+    def request_new_actor_delegate(self, event: EventData):
+        # set as a callback in void BaseGameLogic::VSetProxy()
+        pass
